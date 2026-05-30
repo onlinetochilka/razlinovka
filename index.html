@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Точилка | Универсальный генератор разлиновки</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/onlinetochilka/theme@main/tochilka-theme.css">
+
+    <style>
+        /* --- Специфичные структурные стили для инструмента --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.2rem; margin-bottom: 8px; font-weight: 700; }
+        .subtitle { font-size: 1.1rem; opacity: 0.8; }
+
+        /* --- Сетка интерфейса --- */
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .layout-container { grid-template-columns: 1fr; }
+        }
+
+        /* Контейнеры панелей */
+        .settings-panel {
+            padding: 32px;
+            position: sticky;
+            top: 40px;
+        }
+
+        .setting-group { margin-bottom: 24px; transition: opacity 0.3s ease; }
+        .setting-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        
+        label { display: block; font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; }
+        .val-badge { float: right; font-weight: 700; opacity: 0.7; }
+
+        select.neumo-input, input[type="number"].neumo-input {
+            width: 100%;
+            padding: 12px 16px;
+        }
+
+        /* Ползунки - базовая стилизация структуры */
+        input[type="range"] {
+            width: 100%; height: 6px; 
+            border-radius: 4px; outline: none; -webkit-appearance: none;
+            margin-top: 10px; background: #CBD5E1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: #1A237E; border-radius: 50%;
+            cursor: pointer; transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        input[type="range"]:disabled::-webkit-slider-thumb { background: #94A3B8; cursor: not-allowed; }
+
+        /* Поля отступов */
+        .margins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .margin-input { display: flex; align-items: center; gap: 10px; }
+        .margin-input span { font-size: 0.85rem; font-weight: 600; width: 50px; }
+
+        /* Стили выпадающего меню */
+        .dropdown-item {
+            width: 100%; padding: 12px; background: transparent; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: 600; font-family: inherit; font-size: 0.95rem; 
+            text-align: left; transition: background 0.2s;
+            color: inherit;
+        }
+        .dropdown-item:hover { background: rgba(26, 35, 126, 0.05); }
+
+        /* --- Предпросмотр --- */
+        .preview-panel {
+            padding: 40px; display: flex; justify-content: center; align-items: flex-start;
+            overflow-x: auto;
+        }
+
+        .preview-sheet {
+            background: #FFFFFF;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Стили для скрытия при печати --- */
+        @media print {
+            body { background: none; padding: 0; margin: 0; }
+            .header, .settings-panel { display: none !important; }
+            .layout-container { display: block; max-width: none; gap: 0; margin: 0; }
+            .preview-panel { padding: 0; background: none; border: none; box-shadow: none; }
+            .preview-sheet { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body class="tochilka-theme">
+
+    <div class="header no-print">
+        <h1>Универсальный генератор разлиновки</h1>
+        <p class="subtitle">Идеально точные рабочие листы в миллиметрах. Всё сходится.</p>
+    </div>
+
+    <div class="layout-container">
+        
+        <aside class="settings-panel no-print neumo-card">
+            
+            <div class="setting-row">
+                <div class="setting-group" style="margin-bottom:0;">
+                    <label for="paperSize">Формат бумаги</label>
+                    <select id="paperSize" class="neumo-input">
+                        <option value="A4" data-w="210" data-h="297">A4 (210×297)</option>
+                        <option value="A5" data-w="148.5" data-h="210">A5 (148×210)</option>
+                        <option value="A3" data-w="297" data-h="420">A3 (297×420)</option>
+                        <option value="Letter" data-w="215.9" data-h="279.4">Letter</option>
+                    </select>
+                </div>
+                <div class="setting-group" style="margin-bottom:0;">
+                    <label for="paperOrientation">Ориентация</label>
+                    <select id="paperOrientation" class="neumo-input">
+                        <option value="portrait">Книжная</option>
+                        <option value="landscape">Альбомная</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label for="gridType">Тип сетки</label>
+                <select id="gridType" class="neumo-input">
+                    <option value="square">Клетка (Стандартная)</option>
+                    <option value="millimeter">Миллиметровка (ГОСТ)</option>
+                    <option value="ruled">Линейка (Горизонтальная)</option>
+                    <option value="frequent">Частая косая (1 класс)</option>
+                    <option value="isometric">Изометрическая (Треугольники)</option>
+                    <option value="dots">Точечная сетка (Dot grid)</option>
+                </select>
+            </div>
+
+            <div class="setting-group" id="sizeGroup">
+                <label for="gridSize">Шаг сетки <span class="val-badge" id="sizeVal">5 мм</span></label>
+                <input type="range" id="gridSize" min="2" max="20" step="0.5" value="5">
+            </div>
+
+            <div class="setting-group">
+                <label>Поля (в миллиметрах)</label>
+                <div class="margins-grid">
+                    <div class="margin-input"><span>ВЕРХ</span><input type="number" id="marginTop" class="neumo-input" value="15" min="0" max="100"></div>
+                    <div class="margin-input"><span>НИЗ</span><input type="number" id="marginBottom" class="neumo-input" value="15" min="0" max="100"></div>
+                    <div class="margin-input"><span>ЛЕВО</span><input type="number" id="marginLeft" class="neumo-input" value="20" min="0" max="100"></div>
+                    <div class="margin-input"><span>ПРАВО</span><input type="number" id="marginRight" class="neumo-input" value="10" min="0" max="100"></div>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-group" style="margin-bottom:0;">
+                    <label for="lineColor">Цвет линий</label>
+                    <select id="lineColor" class="neumo-input">
+                        <option value="#94A3B8">Классический серый</option>
+                        <option value="#93C5FD">Нежно-синий</option>
+                        <option value="#64748B">Темно-серый</option>
+                        <option value="#E2E8F0">Очень светлый</option>
+                        <option value="#F87171">Инженерный красный</option>
+                        <option value="#34D399">Мятно-зеленый</option>
+                    </select>
+                </div>
+                <div class="setting-group" style="margin-bottom:0;">
+                    <label for="lineThickness">Толщина <span class="val-badge" id="thickVal">1 px</span></label>
+                    <input type="range" id="lineThickness" min="0.5" max="2" step="0.1" value="1">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-top: 16px; align-items: stretch;">
+                <div style="position: relative; flex: 1;">
+                    <button class="btn-print neumo-btn" id="btn-save-menu" style="width: 100%; height: 100%; background: #1A237E; color: #FFF; padding: 18px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        СОХРАНИТЬ
+                    </button>
+                    
+                    <div id="save-dropdown" class="neumo-card" style="display: none; position: absolute; bottom: calc(100% + 10px); left: 0; width: 100%; padding: 8px; border-radius: 12px; z-index: 100;">
+                        <button class="dropdown-item" onclick="window.downloadImage('png')">Сохранить как PNG</button>
+                        <button class="dropdown-item" onclick="window.downloadImage('jpeg')">Сохранить как JPEG</button>
+                    </div>
+                </div>
+
+                <button class="btn-print neumo-btn-primary" onclick="window.print()" style="flex: 2; margin-top: 0; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    РАСПЕЧАТАТЬ
+                </button>
+            </div>
+        </aside>
+
+        <main class="preview-panel neumo-card">
+            <div class="preview-sheet" id="previewSheet">
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const els = {
+                paperSize: document.getElementById('paperSize'),
+                paperOrientation: document.getElementById('paperOrientation'),
+                type: document.getElementById('gridType'),
+                size: document.getElementById('gridSize'),
+                sizeGroup: document.getElementById('sizeGroup'),
+                sizeVal: document.getElementById('sizeVal'),
+                mT: document.getElementById('marginTop'),
+                mB: document.getElementById('marginBottom'),
+                mL: document.getElementById('marginLeft'),
+                mR: document.getElementById('marginRight'),
+                color: document.getElementById('lineColor'),
+                thick: document.getElementById('lineThickness'),
+                thickVal: document.getElementById('thickVal'),
+                sheet: document.getElementById('previewSheet')
+            };
+
+            const PX_TO_MM_RATIO = 0.264583;
+
+            let dynamicStyle = document.createElement('style');
+            document.head.appendChild(dynamicStyle);
+
+            function generateGrid() {
+                const paperOpt = els.paperSize.options[els.paperSize.selectedIndex];
+                let w = parseFloat(paperOpt.getAttribute('data-w'));
+                let h = parseFloat(paperOpt.getAttribute('data-h'));
+                
+                if (els.paperOrientation.value === 'landscape') {
+                    [w, h] = [h, w];
+                }
+
+                const type = els.type.value;
+                const size = parseFloat(els.size.value);
+                const mT = parseFloat(els.mT.value) || 0;
+                const mB = parseFloat(els.mB.value) || 0;
+                const mL = parseFloat(els.mL.value) || 0;
+                const mR = parseFloat(els.mR.value) || 0;
+                const color = els.color.value;
+                const thickPx = parseFloat(els.thick.value);
+                
+                const thickMm = (thickPx * PX_TO_MM_RATIO).toFixed(3);
+                els.thickVal.textContent = thickPx + ' px';
+
+                if (type === 'millimeter') {
+                    els.size.disabled = true;
+                    els.sizeGroup.style.opacity = '0.5';
+                    els.sizeVal.textContent = '1 мм (Фикс.)';
+                } else {
+                    els.size.disabled = false;
+                    els.sizeGroup.style.opacity = '1';
+                    els.sizeVal.textContent = size + ' мм';
+                }
+
+                els.sheet.style.width = '100%';
+                els.sheet.style.maxWidth = `${w}mm`;
+                els.sheet.style.aspectRatio = `${w} / ${h}`;
+
+                dynamicStyle.innerHTML = `
+                    @media print {
+                        @page { size: ${w}mm ${h}mm; margin: 0; }
+                        .preview-sheet { 
+                            width: ${w}mm !important; 
+                            height: ${h}mm !important; 
+                            max-width: none !important; 
+                            aspect-ratio: auto !important; 
+                        }
+                    }
+                `;
+
+                let lines = '';
+
+                if (type === 'square' || type === 'ruled' || type === 'frequent') {
+                    for (let y = 0; y <= h; y += size) {
+                        lines += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="${color}" stroke-width="${thickMm}" />`;
+                    }
+                    if (type === 'square') {
+                        for (let x = 0; x <= w; x += size) {
+                            lines += `<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="${color}" stroke-width="${thickMm}" />`;
+                        }
+                    } else if (type === 'frequent') {
+                        const dx = h / Math.tan(65 * Math.PI / 180);
+                        for (let x = -dx; x <= w + dx; x += size) {
+                            lines += `<line x1="${x + dx}" y1="0" x2="${x}" y2="${h}" stroke="${color}" stroke-width="${thickMm}" />`;
+                        }
+                    }
+                } else if (type === 'millimeter') {
+                    for (let x = 0; x <= w; x += 1) {
+                        const is10 = (x % 10 === 0);
+                        const is5 = (x % 5 === 0 && !is10);
+                        const currentThick = is10 ? thickMm * 1.5 : (is5 ? thickMm : thickMm * 0.4);
+                        const opacity = is10 ? 1 : (is5 ? 0.7 : 0.3);
+                        lines += `<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="${color}" stroke-width="${currentThick}" opacity="${opacity}" />`;
+                    }
+                    for (let y = 0; y <= h; y += 1) {
+                        const is10 = (y % 10 === 0);
+                        const is5 = (y % 5 === 0 && !is10);
+                        const currentThick = is10 ? thickMm * 1.5 : (is5 ? thickMm : thickMm * 0.4);
+                        const opacity = is10 ? 1 : (is5 ? 0.7 : 0.3);
+                        lines += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="${color}" stroke-width="${currentThick}" opacity="${opacity}" />`;
+                    }
+                } else if (type === 'isometric') {
+                    const hStep = size * (Math.sqrt(3) / 2);
+                    for (let y = 0; y <= h; y += hStep) {
+                        lines += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="${color}" stroke-width="${thickMm}" />`;
+                    }
+                    const dxIso = h / Math.tan(60 * Math.PI / 180);
+                    for (let x = -dxIso; x <= w + dxIso; x += size) {
+                        lines += `<line x1="${x + dxIso}" y1="0" x2="${x}" y2="${h}" stroke="${color}" stroke-width="${thickMm}" />`;
+                        lines += `<line x1="${x - dxIso}" y1="0" x2="${x}" y2="${h}" stroke="${color}" stroke-width="${thickMm}" />`;
+                    }
+                } else if (type === 'dots') {
+                    for (let y = 0; y <= h; y += size) {
+                        for (let x = 0; x <= w; x += size) {
+                            lines += `<circle cx="${x}" cy="${y}" r="${thickMm}" fill="${color}" stroke="none" />`;
+                        }
+                    }
+                }
+
+                const svgContent = `
+                    <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <clipPath id="printArea">
+                                <rect x="${mL}" y="${mT}" width="${Math.max(0, w - mL - mR)}" height="${Math.max(0, h - mT - mB)}" />
+                            </clipPath>
+                        </defs>
+                        <g clip-path="url(#printArea)">
+                            ${lines}
+                        </g>
+                    </svg>
+                `;
+
+                els.sheet.innerHTML = svgContent;
+            }
+
+            let timeout;
+            function generateGridDebounced() {
+                clearTimeout(timeout);
+                timeout = setTimeout(generateGrid, 15);
+            }
+
+            Object.values(els).forEach(el => {
+                if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT')) {
+                    el.addEventListener('input', generateGridDebounced);
+                }
+            });
+
+            // --- Логика выпадающего меню и сохранения ---
+            const btnSaveMenu = document.getElementById('btn-save-menu');
+            const saveDropdown = document.getElementById('save-dropdown');
+
+            // Открытие/закрытие меню по клику на кнопку
+            btnSaveMenu.addEventListener('click', (e) => {
+                e.stopPropagation(); // Предотвращаем всплытие клика
+                saveDropdown.style.display = saveDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Закрытие меню при клике в любое место документа
+            document.addEventListener('click', () => {
+                saveDropdown.style.display = 'none';
+            });
+
+            // Глобальная функция сохранения, доступная из onclick в HTML
+            window.downloadImage = function(format) {
+                saveDropdown.style.display = 'none'; // Скрываем меню после выбора
+                
+                const svgElement = document.querySelector('.preview-sheet svg');
+                if (!svgElement) return;
+
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svgElement);
+                
+                const paperOpt = els.paperSize.options[els.paperSize.selectedIndex];
+                let w = parseFloat(paperOpt.getAttribute('data-w'));
+                let h = parseFloat(paperOpt.getAttribute('data-h'));
+                if (els.paperOrientation.value === 'landscape') {
+                    [w, h] = [h, w];
+                }
+                
+                // Масштабирование x5 для четкости линий при сохранении
+                const scale = 5; 
+                const canvas = document.createElement('canvas');
+                canvas.width = w * scale;
+                canvas.height = h * scale;
+                const ctx = canvas.getContext('2d');
+                
+                // Заливаем фон белым (критично важно для JPEG)
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const img = new Image();
+                const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    
+                    const link = document.createElement('a');
+                    let mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+                    let extension = format === 'jpeg' ? 'jpg' : 'png';
+                    
+                    link.download = `tochilka_template.${extension}`;
+                    // Если выбран jpeg, передаем параметр качества 1.0 (максимальное)
+                    link.href = canvas.toDataURL(mimeType, 1.0); 
+                    link.click();
+                };
+                img.src = url;
+            };
+
+            generateGrid();
+        });
+    </script>
+</body>
+</html>
