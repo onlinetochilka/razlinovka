@@ -94,7 +94,6 @@
             overflow-x: auto;
         }
         
-        /* Устранение фантомных отступов и скроллов */
         .preview-sheet { 
             background: #FFFFFF; 
             position: relative; 
@@ -206,8 +205,9 @@
                     </button>
                     
                     <div id="save-dropdown" class="save-dropdown neumo-card">
-                        <button class="dropdown-item" data-download="png">Сохранить как PNG</button>
-                        <button class="dropdown-item" data-download="jpeg">Сохранить как JPEG</button>
+                        <button class="dropdown-item" data-download="png">PNG</button>
+                        <button class="dropdown-item" data-download="jpeg">JPEG</button>
+                        <button class="dropdown-item" data-download="pdf">PDF</button>
                     </div>
                 </div>
 
@@ -250,7 +250,6 @@
                 const dynamicStyle = document.createElement('style');
                 document.head.appendChild(dynamicStyle);
 
-                // Синхронизация цветов между select и color picker
                 els.colorSelect.addEventListener('input', (e) => {
                     if (e.target.value) {
                         els.customColor.value = e.target.value;
@@ -259,7 +258,7 @@
                 });
 
                 els.customColor.addEventListener('input', (e) => {
-                    els.colorSelect.value = ''; // Переключаем на скрытую опцию "Свой цвет"
+                    els.colorSelect.value = ''; 
                     els.colorBadge.textContent = e.target.value;
                 });
 
@@ -288,7 +287,7 @@
                     const mB = parseFloat(els.mB.value) || 0;
                     const mL = parseFloat(els.mL.value) || 0;
                     const mR = parseFloat(els.mR.value) || 0;
-                    const color = els.customColor.value; // Источник истины - цветовой picker
+                    const color = els.customColor.value; 
                     const thickPx = parseFloat(els.thick.value);
                     
                     const thickMm = (thickPx * PX_TO_MM_RATIO).toFixed(3);
@@ -441,6 +440,12 @@
 
                 function downloadImage(format) {
                     saveDropdown.style.display = 'none';
+                    
+                    // Векторный экспорт в PDF решается через системную печать для 100% качества
+                    if (format === 'pdf') {
+                        window.print();
+                        return;
+                    }
                     
                     const svgElement = document.querySelector('.preview-sheet svg');
                     if (!svgElement) return;
