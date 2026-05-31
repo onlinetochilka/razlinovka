@@ -18,16 +18,25 @@
         }
 
         .header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
-        .subtitle { font-size: 1.1rem; opacity: 0.8; }
-
-        /* Фирменная шестеренка в заголовке */
-        .brand-gear {
-            height: 0.9em; /* Размер относительно текста заголовка */
-            width: auto;
-            vertical-align: middle; /* Выравнивание по центру строки */
-            margin: 0 6px 4px 0; 
+        
+        h1 { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
         }
+        
+        .brand-gear {
+            height: 32px; 
+            width: 32px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .subtitle { font-size: 1.1rem; opacity: 0.8; }
 
         /* --- Сетка интерфейса --- */
         .layout-container {
@@ -61,7 +70,7 @@
             padding: 12px 16px;
         }
 
-        /* Ползунки - базовая стилизация структуры */
+        /* Ползунки */
         input[type="range"] {
             width: 100%; height: 6px; 
             border-radius: 4px; outline: none; -webkit-appearance: none;
@@ -80,17 +89,21 @@
         .margin-input { display: flex; align-items: center; gap: 10px; }
         .margin-input span { font-size: 0.85rem; font-weight: 600; width: 50px; }
 
-        /* Структура кнопок и меню */
-        .action-buttons { display: flex; gap: 16px; margin-top: 16px; align-items: stretch; }
-        .save-menu-wrapper { position: relative; flex: 1; }
+        /* --- Структура кнопок и меню --- */
+        .action-buttons { 
+            display: flex; gap: 12px; margin-top: 24px; align-items: stretch; width: 100%; box-sizing: border-box; 
+        }
+        .save-menu-wrapper { position: relative; flex: 1; min-width: 0; }
+        .btn-print-main { flex: 1; min-width: 0; margin-top: 0; }
         
         .btn-action { 
             width: 100%; height: 100%; display: flex; align-items: center; 
-            justify-content: center; gap: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none;
+            justify-content: center; gap: 6px; font-weight: 700; font-size: 0.9rem; 
+            cursor: pointer; border: none; white-space: nowrap;
+            padding: 16px 4px !important; 
         }
-        .btn-print-main { flex: 2; margin-top: 0; }
+        .btn-action svg { width: 18px; height: 18px; flex-shrink: 0; }
         
-        /* Синий стиль для кнопки сохранения */
         .btn-save-style { background: #1A237E; color: #FFF; }
         
         .save-dropdown {
@@ -105,6 +118,18 @@
         }
         .dropdown-item:hover { background: rgba(26, 35, 126, 0.05); }
 
+        .print-comment-box {
+            font-size: 0.85rem; 
+            color: #1A237E; 
+            margin-top: 12px; 
+            padding: 12px 16px; 
+            background: rgba(26, 35, 126, 0.05); 
+            border-left: 4px solid #1A237E;
+            border-radius: 0 8px 8px 0; 
+            line-height: 1.5; 
+            display: none;
+        }
+
         /* --- Предпросмотр --- */
         .preview-panel {
             padding: 40px; display: flex; justify-content: center; align-items: flex-start;
@@ -117,13 +142,15 @@
             transition: all 0.3s ease;
         }
 
-        /* --- Стили для скрытия при печати --- */
+        /* --- СТИЛИ ДЛЯ ПЕЧАТИ (Оптимизировано для решения проблемы бесконечной загрузки) --- */
         @media print {
-            body { background: none; padding: 0; margin: 0; }
+            body, html { display: block !important; background: none; padding: 0; margin: 0; width: 100%; height: 100%; }
             .header, .settings-panel { display: none !important; }
-            .layout-container { display: block; max-width: none; gap: 0; margin: 0; }
-            .preview-panel { padding: 0; background: none; border: none; box-shadow: none; }
-            .preview-sheet { box-shadow: none; border: none; }
+            /* Жестко отключаем Grid и Flexbox, чтобы не ломать математику принтера */
+            .layout-container { display: block !important; max-width: none; gap: 0; margin: 0; padding: 0; }
+            .preview-panel { display: block !important; padding: 0; margin: 0; background: none; border: none; box-shadow: none; overflow: visible !important; }
+            .preview-sheet { display: block !important; box-shadow: none; border: none; }
+            svg { display: block !important; }
         }
     </style>
 </head>
@@ -131,7 +158,8 @@
 
     <div class="header no-print">
         <h1>
-            <img src="https://cdn.jsdelivr.net/gh/onlinetochilka/theme@main/tochilka-logo.svg" class="brand-gear" alt="Логотип">Генератор разлиновки
+            <img src="https://cdn.jsdelivr.net/gh/onlinetochilka/theme@main/tochilka-logo.svg" class="brand-gear" alt="Логотип">
+            Генератор разлиновки
         </h1>
         <p class="subtitle">Идеально точные рабочие листы в миллиметрах. Всё сходится.</p>
     </div>
@@ -156,6 +184,17 @@
                         <option value="portrait">Книжная</option>
                         <option value="landscape">Альбомная</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label for="printLayout">Размещение при печати</label>
+                <select id="printLayout" class="neumo-input">
+                    <option value="1">1 шаблон на лист (Целый)</option>
+                    <option value="2">2 шаблона на лист (Половинки)</option>
+                </select>
+                <div id="printComment" class="print-comment-box">
+                    💡 <b>Подсказка:</b> Для идеальной печати двух листов нажмите «Распечатать», в окне принтера выберите формат <b>А4</b>, ориентацию <b>«Альбомная»</b> и включите <b>«2 страницы на листе»</b>. Укажите количество копий: 2.
                 </div>
             </div>
 
@@ -207,7 +246,7 @@
             <div class="action-buttons">
                 <div class="save-menu-wrapper">
                     <button class="btn-action neumo-btn btn-save-style" id="btn-save-menu">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         СОХРАНИТЬ
                     </button>
                     
@@ -218,7 +257,7 @@
                 </div>
 
                 <button class="btn-action btn-print-main neumo-btn-primary" id="btn-print">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     РАСПЕЧАТАТЬ
                 </button>
             </div>
@@ -235,6 +274,8 @@
             const els = {
                 paperSize: document.getElementById('paperSize'),
                 paperOrientation: document.getElementById('paperOrientation'),
+                printLayout: document.getElementById('printLayout'),
+                printComment: document.getElementById('printComment'),
                 type: document.getElementById('gridType'),
                 size: document.getElementById('gridSize'),
                 sizeGroup: document.getElementById('sizeGroup'),
@@ -253,14 +294,30 @@
             let dynamicStyle = document.createElement('style');
             document.head.appendChild(dynamicStyle);
 
+            els.printLayout.addEventListener('change', (e) => {
+                if (e.target.value === '2') {
+                    els.printComment.style.display = 'block';
+                    els.paperSize.value = 'A5';
+                    generateGrid();
+                } else {
+                    els.printComment.style.display = 'none';
+                }
+            });
+
             function generateGrid() {
                 const paperOpt = els.paperSize.options[els.paperSize.selectedIndex];
-                let w = parseFloat(paperOpt.getAttribute('data-w'));
-                let h = parseFloat(paperOpt.getAttribute('data-h'));
+                
+                // Физический (оригинальный) размер бумаги
+                let origW = parseFloat(paperOpt.getAttribute('data-w'));
+                let origH = parseFloat(paperOpt.getAttribute('data-h'));
                 
                 if (els.paperOrientation.value === 'landscape') {
-                    [w, h] = [h, w];
+                    [origW, origH] = [origH, origW];
                 }
+
+                // Размер внутреннего холста с учетом аппаратной подрезки
+                let w = origW - 6; 
+                let h = origH - 12;
 
                 const type = els.type.value;
                 const size = parseFloat(els.size.value);
@@ -288,14 +345,16 @@
                 els.sheet.style.maxWidth = `${w}mm`;
                 els.sheet.style.aspectRatio = `${w} / ${h}`;
 
+                // ВАЖНО: @page получает оригинальные размеры бумаги, а лист - подрезанные
                 dynamicStyle.innerHTML = `
                     @media print {
-                        @page { size: ${w}mm ${h}mm; margin: 0; }
+                        @page { size: ${origW}mm ${origH}mm; margin: 0; }
                         .preview-sheet { 
                             width: ${w}mm !important; 
                             height: ${h}mm !important; 
                             max-width: none !important; 
                             aspect-ratio: auto !important; 
+                            margin: 6mm auto 0 auto !important; /* Центрируем подрезанный холст */
                         }
                     }
                 `;
@@ -408,11 +467,14 @@
                 const svgString = serializer.serializeToString(svgElement);
                 
                 const paperOpt = els.paperSize.options[els.paperSize.selectedIndex];
-                let w = parseFloat(paperOpt.getAttribute('data-w'));
-                let h = parseFloat(paperOpt.getAttribute('data-h'));
+                let origW = parseFloat(paperOpt.getAttribute('data-w'));
+                let origH = parseFloat(paperOpt.getAttribute('data-h'));
                 if (els.paperOrientation.value === 'landscape') {
-                    [w, h] = [h, w];
+                    [origW, origH] = [origH, origW];
                 }
+                
+                let w = origW - 6; 
+                let h = origH - 12;
                 
                 const scale = 5; 
                 const canvas = document.createElement('canvas');
