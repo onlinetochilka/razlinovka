@@ -29,8 +29,20 @@
             align-items: start;
         }
 
+        /* --- Исправленный мобильный адаптив --- */
         @media (max-width: 992px) {
-            .layout-container { grid-template-columns: 1fr; }
+            .layout-container { 
+                grid-template-columns: 1fr; 
+                gap: 24px; 
+            }
+            .settings-panel { 
+                position: relative !important; /* Отключаем прилипание на мобильных */
+                top: 0 !important; 
+                padding: 24px !important; 
+            }
+            .preview-panel { 
+                padding: 20px 10px !important; /* Уменьшаем рамку для телефона */
+            }
         }
 
         .settings-panel { padding: 32px; position: sticky; top: 40px; }
@@ -441,7 +453,6 @@
                 function downloadImage(format) {
                     saveDropdown.style.display = 'none';
                     
-                    // Векторный экспорт в PDF решается через системную печать для 100% качества
                     if (format === 'pdf') {
                         window.print();
                         return;
