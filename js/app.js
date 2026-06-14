@@ -38,6 +38,9 @@ const state = {
     schoolMargins: true,
 };
 
+// Сохранённые поля для toggle-кнопки "0" (null = кнопка не активна)
+let _resetSavedMargins = null;
+
 /* ═══════════════════════════════════════════════════════════════════════
    КЭШ DOM
    ═══════════════════════════════════════════════════════════════════════ */
@@ -311,6 +314,11 @@ function initMarginInputs() {
 
     FIELDS.forEach(({ el, key }) => {
         el.addEventListener('input', () => {
+            // Если кнопка "0" активна — отжимаем её (пользователь меняет поле вручную)
+            if (refs.btnResetMargins?.classList.contains('active')) {
+                refs.btnResetMargins.classList.remove('active');
+                _resetSavedMargins = null;
+            }
             const raw = parseFloat(el.value);
             if (!isNaN(raw) && raw >= 0 && raw <= getMarginMax(key)) {
                 state.margins[key] = raw;
@@ -642,17 +650,39 @@ function exportPNG() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   КНОПКА «ОБНУЛИТЬ ПОЛЯ» (центр компаса)
+   КНОПКА «ОБНУЛИТЬ ПОЛЯ» (центр компаса) — toggle-режим
    ═══════════════════════════════════════════════════════════════════════ */
 
 function initResetMarginsBtn() {
     if (!refs.btnResetMargins) return;
+
     refs.btnResetMargins.addEventListener('click', () => {
-        [refs.marginTop, refs.marginBottom, refs.marginLeft, refs.marginRight]
-            .forEach(el => { el.value = 0; });
-        state.margins = { top: 0, bottom: 0, left: 0, right: 0 };
+        const isActive = refs.btnResetMargins.classList.contains('active');
+
+        if (isActive) {
+            // Деактивация: восстанавливаем сохранённые значения
+            if (_resetSavedMargins) {
+                state.margins = { ..._resetSavedMargins };
+                refs.marginTop.value    = _resetSavedMargins.top;
+                refs.marginBottom.value = _resetSavedMargins.bottom;
+                refs.marginLeft.value   = _resetSavedMargins.left;
+                refs.marginRight.value  = _resetSavedMargins.right;
+                _resetSavedMargins = null;
+            }
+            refs.btnResetMargins.classList.remove('active');
+        } else {
+            // Активация: сохраняем текущие значения, обнуляем поля
+            _resetSavedMargins = { ...state.margins };
+            state.margins = { top: 0, bottom: 0, left: 0, right: 0 };
+            refs.marginTop.value    = 0;
+            refs.marginBottom.value = 0;
+            refs.marginLeft.value   = 0;
+            refs.marginRight.value  = 0;
+            refs.btnResetMargins.classList.add('active');
+            track('margins_reset');
+        }
+
         scheduleRedraw();
-        track('margins_reset');
     });
 }
 
