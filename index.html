@@ -205,53 +205,49 @@
 
             <!-- Поля (мм) -->
             <section class="setting-section">
-                <div class="setting-label">Поля (мм)</div>
-                <div class="margins-compass">
-                    <div class="compass-row compass-row--top">
-                        <div class="margin-cell">
-                            <label class="margin-label" for="marginTop">Верхнее</label>
-                            <input type="number"
-                                   class="sub-input margin-input"
-                                   id="marginTop"
-                                   value="15" min="0" max="100"
-                                   aria-label="Верхнее поле в мм"
-                                   data-action="margin-top">
-                        </div>
+                <div class="setting-label">
+                    Поля (мм)
+                    <button class="btn-reset-margins"
+                            id="btnResetMargins"
+                            title="Обнулить / восстановить поля"
+                            aria-label="Обнулить все поля">0</button>
+                </div>
+                <div class="margins-grid">
+                    <div class="margin-row">
+                        <label class="margin-label" for="marginTop">Верхнее</label>
+                        <input type="number"
+                               class="sub-input margin-input"
+                               id="marginTop"
+                               value="15" min="0" max="100"
+                               aria-label="Верхнее поле в мм"
+                               data-action="margin-top">
                     </div>
-                    <div class="compass-row compass-row--middle">
-                        <div class="margin-cell">
-                            <label class="margin-label" for="marginLeft">Левое</label>
-                            <input type="number"
-                                   class="sub-input margin-input"
-                                   id="marginLeft"
-                                   value="20" min="0" max="100"
-                                   aria-label="Левое поле в мм"
-                                   data-action="margin-left">
-                        </div>
-                        <button class="compass-center btn-reset-margins"
-                                id="btnResetMargins"
-                                title="Обнулить поля"
-                                aria-label="Обнулить все поля">0</button>
-                        <div class="margin-cell">
-                            <label class="margin-label" for="marginRight">Правое</label>
-                            <input type="number"
-                                   class="sub-input margin-input"
-                                   id="marginRight"
-                                   value="10" min="0" max="100"
-                                   aria-label="Правое поле в мм"
-                                   data-action="margin-right">
-                        </div>
+                    <div class="margin-row">
+                        <label class="margin-label" for="marginRight">Правое</label>
+                        <input type="number"
+                               class="sub-input margin-input"
+                               id="marginRight"
+                               value="10" min="0" max="100"
+                               aria-label="Правое поле в мм"
+                               data-action="margin-right">
                     </div>
-                    <div class="compass-row compass-row--bottom">
-                        <div class="margin-cell">
-                            <label class="margin-label" for="marginBottom">Нижнее</label>
-                            <input type="number"
-                                   class="sub-input margin-input"
-                                   id="marginBottom"
-                                   value="15" min="0" max="100"
-                                   aria-label="Нижнее поле в мм"
-                                   data-action="margin-bottom">
-                        </div>
+                    <div class="margin-row">
+                        <label class="margin-label" for="marginBottom">Нижнее</label>
+                        <input type="number"
+                               class="sub-input margin-input"
+                               id="marginBottom"
+                               value="15" min="0" max="100"
+                               aria-label="Нижнее поле в мм"
+                               data-action="margin-bottom">
+                    </div>
+                    <div class="margin-row">
+                        <label class="margin-label" for="marginLeft">Левое</label>
+                        <input type="number"
+                               class="sub-input margin-input"
+                               id="marginLeft"
+                               value="20" min="0" max="100"
+                               aria-label="Левое поле в мм"
+                               data-action="margin-left">
                     </div>
                 </div>
             </section>

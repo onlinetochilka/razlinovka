@@ -511,68 +511,50 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   ПОЛЯ (КОМПАС-СЕТКА)
+   ПОЛЯ (мм) — компактная сетка 2 × 2
    ═══════════════════════════════════════════════════════════════════════ */
 
-.margins-compass {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
+.margins-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
 }
 
-.compass-row {
+/* Каждая ячейка: метка слева, инпут справа */
+.margin-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-}
-
-.compass-row--middle { width: 100%; justify-content: space-between; }
-
-.compass-center {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.margin-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
+    justify-content: space-between;
+    gap: 0.25rem;
 }
 
 .margin-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-muted);
     letter-spacing: 0.3px;
-    text-align: center;
     user-select: none;
+    white-space: nowrap;
 }
 
 .margin-input {
-    width: 3.6rem !important;
-    /* Уменьшенная высота инпутов компаса — чтобы блок не требовал скролла */
+    width: 3.25rem !important;
     padding-block: 0.28rem;
+    text-align: center;
 }
 
-/* Кнопка "Обнулить поля" в центре компаса */
+/* Кнопка "0" — маленький круг в заголовке "ПОЛЯ (ММ)" */
 .btn-reset-margins {
-    /* Жёсткий круг: сброс flex:1 от .compass-center */
     flex: none;
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
-    margin: auto;
     border: none;
     border-radius: 50%;
     background: var(--bg-color);
     color: var(--text-muted);
     font-family: var(--font-family);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
     box-shadow: var(--shadow-sm-inset);
