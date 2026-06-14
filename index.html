@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Точилка | Генератор разлиновки</title>
+
+    <!-- Yandex.Metrika counter (stub — замените ID на реальный) -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+        ym("XXXXXXXX","init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/XXXXXXXX" style="position:absolute;left:-9999px" alt=""></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="tochilka-theme">
+
+    <!-- ── Панель настроек (левая сторона) ─────────────────────────────── -->
+    <aside class="settings-card app-card card" role="complementary" aria-label="Панель настроек разлиновки">
+
+        <header class="header">
+            <img
+                src="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-logo.svg"
+                class="header-logo"
+                alt="Логотип Точилки"
+                width="44" height="44"
+            >
+            <div class="header-text">
+                <div class="header-title">Разлиновка</div>
+                <div class="header-slogan">Идеальные рабочие листы</div>
+            </div>
+        </header>
+
+        <!-- ── Прокручиваемая зона настроек ─────────────────────────────── -->
+        <div class="settings-scroll">
+
+            <!-- Формат бумаги -->
+            <section class="setting-section">
+                <div class="setting-label">Формат бумаги</div>
+                <nav class="seg-group seg-group--4"
+                     role="group"
+                     aria-label="Формат бумаги"
+                     id="paperSizeGroup"
+                     data-action="paper-size">
+                    <button class="seg-btn active"
+                            data-value="A4" data-w="210" data-h="297"
+                            aria-pressed="true">A4</button>
+                    <button class="seg-btn"
+                            data-value="A5" data-w="148.5" data-h="210"
+                            aria-pressed="false">A5</button>
+                    <button class="seg-btn"
+                            data-value="A3" data-w="297" data-h="420"
+                            aria-pressed="false">A3</button>
+                    <button class="seg-btn"
+                            data-value="Letter" data-w="215.9" data-h="279.4"
+                            aria-pressed="false">Letter</button>
+                </nav>
+            </section>
+
+            <!-- Ориентация -->
+            <section class="setting-section">
+                <div class="setting-label">Ориентация</div>
+                <nav class="seg-group seg-group--2"
+                     role="group"
+                     aria-label="Ориентация листа"
+                     id="orientationGroup"
+                     data-action="orientation">
+                    <button class="seg-btn seg-btn--icon active"
+                            data-value="portrait"
+                            aria-pressed="true">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="2"/>
+                        </svg>
+                        Книжная
+                    </button>
+                    <button class="seg-btn seg-btn--icon"
+                            data-value="landscape"
+                            aria-pressed="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/>
+                        </svg>
+                        Альбомная
+                    </button>
+                </nav>
+            </section>
+
+            <!-- Тип сетки -->
+            <section class="setting-section">
+                <div class="setting-label">Тип сетки</div>
+                <nav class="seg-group seg-group--grid"
+                     role="group"
+                     aria-label="Тип разлиновки"
+                     id="gridTypeGroup"
+                     data-action="grid-type">
+                    <button class="seg-btn active" data-value="square"     aria-pressed="true">Клетка</button>
+                    <button class="seg-btn"         data-value="millimeter" aria-pressed="false">Мм-бумага</button>
+                    <button class="seg-btn"         data-value="wide"       aria-pressed="false">Широкая</button>
+                    <button class="seg-btn"         data-value="narrow"     aria-pressed="false">Узкая</button>
+                    <button class="seg-btn"         data-value="slanted"    aria-pressed="false">Косая</button>
+                    <button class="seg-btn"         data-value="frequent"   aria-pressed="false">Частая косая</button>
+                    <button class="seg-btn"         data-value="isometric"  aria-pressed="false">Изометрия</button>
+                    <button class="seg-btn"         data-value="dots"       aria-pressed="false">Точки</button>
+                </nav>
+            </section>
+
+            <!-- Шаг сетки -->
+            <section class="setting-section" id="stepSection">
+                <div class="setting-label">
+                    Шаг сетки
+                    <span class="val-badge" id="stepBadge">8 мм</span>
+                </div>
+                <div class="range-combo">
+                    <input type="range"
+                           class="range-track"
+                           id="gridStep"
+                           min="2" max="20" step="0.5" value="8"
+                           aria-label="Шаг сетки в мм"
+                           data-action="grid-step-range">
+                    <input type="number"
+                           class="sub-input"
+                           id="gridStepNum"
+                           min="2" max="20" step="0.5" value="8"
+                           aria-label="Шаг сетки числом"
+                           data-action="grid-step-number">
+                    <span class="unit-label" aria-hidden="true">мм</span>
+                </div>
+            </section>
+
+            <!-- Толщина линий -->
+            <section class="setting-section">
+                <div class="setting-label">
+                    Толщина линий
+                    <span class="val-badge" id="thickBadge">0.3 мм</span>
+                </div>
+                <div class="range-combo">
+                    <input type="range"
+                           class="range-track"
+                           id="lineThick"
+                           min="0.1" max="1.0" step="0.05" value="0.3"
+                           aria-label="Толщина линий в миллиметрах"
+                           data-action="line-thick-range">
+                    <input type="number"
+                           class="sub-input"
+                           id="lineThickNum"
+                           min="0.1" max="1.0" step="0.05" value="0.3"
+                           aria-label="Толщина линий числом"
+                           data-action="line-thick-number">
+                    <span class="unit-label" aria-hidden="true">мм</span>
+                </div>
+            </section>
+
+            <!-- Цвет линий -->
+            <section class="setting-section">
+                <div class="setting-label">
+                    Цвет линий
+                    <span class="val-badge color-badge-text" id="colorBadge">#94a3b8</span>
+                </div>
+                <div class="color-row" role="group" aria-label="Цвет линий" data-action="line-color">
+                    <button class="color-swatch"
+                            data-color="#000000"
+                            style="--swatch-bg: #000000"
+                            aria-label="Чёрный"
+                            title="Чёрный"
+                            aria-pressed="false"></button>
+                    <button class="color-swatch active"
+                            data-color="#94a3b8"
+                            style="--swatch-bg: #94a3b8"
+                            aria-label="Серый"
+                            title="Серый"
+                            aria-pressed="true"></button>
+                    <button class="color-swatch"
+                            data-color="#006584"
+                            style="--swatch-bg: #006584"
+                            aria-label="Синий"
+                            title="Синий"
+                            aria-pressed="false"></button>
+                    <button class="color-swatch"
+                            data-color="#B71234"
+                            style="--swatch-bg: #B71234"
+                            aria-label="Красный"
+                            title="Красный"
+                            aria-pressed="false"></button>
+                    <button class="color-swatch"
+                            data-color="#10b981"
+                            style="--swatch-bg: #10b981"
+                            aria-label="Зелёный"
+                            title="Зелёный"
+                            aria-pressed="false"></button>
+                    <label class="color-picker-wrap" title="Выбрать свой цвет" aria-label="Выбрать свой цвет">
+                        <input type="color"
+                               id="customColor"
+                               value="#94a3b8"
+                               aria-label="Пользовательский цвет"
+                               data-action="custom-color">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/>
+                            <circle cx="6.5"  cy="11.5" r="1.5" fill="currentColor" stroke="none"/>
+                            <circle cx="9.5"  cy="7.5"  r="1.5" fill="currentColor" stroke="none"/>
+                            <circle cx="14.5" cy="7.5"  r="1.5" fill="currentColor" stroke="none"/>
+                            <circle cx="17.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/>
+                        </svg>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Поля (мм) -->
+            <section class="setting-section">
+                <div class="setting-label">Поля (мм)</div>
+                <div class="margins-compass">
+                    <div class="compass-row compass-row--top">
+                        <div class="margin-cell">
+                            <label class="margin-label" for="marginTop">Верхнее</label>
+                            <input type="number"
+                                   class="sub-input margin-input"
+                                   id="marginTop"
+                                   value="15" min="0" max="100"
+                                   aria-label="Верхнее поле в мм"
+                                   data-action="margin-top">
+                        </div>
+                    </div>
+                    <div class="compass-row compass-row--middle">
+                        <div class="margin-cell">
+                            <label class="margin-label" for="marginLeft">Левое</label>
+                            <input type="number"
+                                   class="sub-input margin-input"
+                                   id="marginLeft"
+                                   value="20" min="0" max="100"
+                                   aria-label="Левое поле в мм"
+                                   data-action="margin-left">
+                        </div>
+                        <div class="compass-center" aria-hidden="true">
+                            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="8" y="8" width="24" height="24" rx="3"
+                                      stroke="currentColor" stroke-width="1.5"
+                                      stroke-dasharray="3 3" opacity="0.4"/>
+                                <rect x="14" y="14" width="12" height="12" rx="1"
+                                      fill="currentColor" opacity="0.12"/>
+                            </svg>
+                        </div>
+                        <div class="margin-cell">
+                            <label class="margin-label" for="marginRight">Правое</label>
+                            <input type="number"
+                                   class="sub-input margin-input"
+                                   id="marginRight"
+                                   value="10" min="0" max="100"
+                                   aria-label="Правое поле в мм"
+                                   data-action="margin-right">
+                        </div>
+                    </div>
+                    <div class="compass-row compass-row--bottom">
+                        <div class="margin-cell">
+                            <label class="margin-label" for="marginBottom">Нижнее</label>
+                            <input type="number"
+                                   class="sub-input margin-input"
+                                   id="marginBottom"
+                                   value="15" min="0" max="100"
+                                   aria-label="Нижнее поле в мм"
+                                   data-action="margin-bottom">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /.settings-scroll -->
+
+        <!-- ── Кнопки действий ──────────────────────────────────────────── -->
+        <footer class="action-footer">
+            <button class="btn btn-secondary"
+                    id="btnSave"
+                    data-action="save-template"
+                    aria-label="Сохранить текущий шаблон">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Сохранить шаблон
+            </button>
+            <button class="btn btn-primary"
+                    id="btnPrint"
+                    data-action="print-sheet"
+                    aria-label="Распечатать лист">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Распечатать лист
+            </button>
+        </footer>
+
+    </aside><!-- /.settings-card -->
+
+    <!-- ── Превью листа (правая сторона) ───────────────────────────────── -->
+    <main class="preview-wrap" role="main" aria-label="Предпросмотр разлиновки">
+        <svg id="previewSvg"
+             viewBox="0 0 210 297"
+             preserveAspectRatio="xMidYMid meet"
+             xmlns="http://www.w3.org/2000/svg"
+             role="img"
+             aria-label="Предпросмотр листа формата A4">
+            <rect id="bgRect" x="0" y="0" width="210" height="297" fill="#ffffff"/>
+            <!-- Сетка будет отрисована здесь в следующем этапе -->
+        </svg>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
